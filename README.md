@@ -1,6 +1,6 @@
 # Number Guessing Game
 
-This is a mini 1 project in C for me to familiarise myself with the C programming language.
+This is a mini project in C for me to familiarise myself with the C programming language.
 
 ## Features
 
