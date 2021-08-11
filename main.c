@@ -4,7 +4,9 @@
 
 void initialiseGameEngine();
 int generateRandomInRange(int, int);
-char* generateGrade(int);
+int isUpperBoundValid(int, int);
+int isGuessValid(int, int, int);
+char generateGrade(int);
 
 int ORIGINAL_LOWER_BOUND;
 int ORIGINAL_UPPER_BOUND;
@@ -19,8 +21,14 @@ int main() {
     int userInput;
 
     do {
-        printf("Please input an integer between %d - %d\n", lowerBound, upperBound);
+        printf("Please input an integer between %d - %d\n\n", lowerBound, upperBound);
         scanf("%d", &userInput);
+
+        while (!isGuessValid(userInput, lowerBound, upperBound)) {
+            printf("Invalid guess!\nGuess BETWEEN %d - %d\n\n", lowerBound, upperBound);
+            scanf("%d", &userInput);
+        }
+        
         nGuess ++;
 
         if (userInput == answer) {
@@ -40,7 +48,7 @@ int main() {
     printf("----- Game Review -----\n");
     printf("Answer: %d\n", answer);
     printf("No. guesses: %d\n", nGuess);
-    printf("Grade: %s\n", generateGrade(nGuess));
+    printf("Grade: %c\n", generateGrade(nGuess));
 
     return 0;
 }
@@ -52,17 +60,28 @@ void initialiseGameEngine() {
     scanf("%d", &lowerBound);
     ORIGINAL_LOWER_BOUND = lowerBound;
 
-    printf("Please enter the UPPER boundary:\n");
-    scanf("%d", &upperBound);
-    ORIGINAL_UPPER_BOUND = upperBound;
+    do {
+        printf("Please enter the UPPER boundary:\n");
+        scanf("%d", &upperBound);
+
+        ORIGINAL_UPPER_BOUND = upperBound;
+    } while (!isUpperBoundValid(lowerBound, upperBound));
+}
+
+int isUpperBoundValid(int lowerBound, int upperBound) {
+    return upperBound > lowerBound + 1;
+}
+
+int isGuessValid(int guess, int lowerBound, int upperBound) {
+    return guess > lowerBound && guess < upperBound;
 }
 
 int generateRandomInRange(int lowerBound, int upperBound) {
     srand(time(0));
-    return (rand() % (lowerBound - upperBound + 1)) + lowerBound;
+    return (rand() % (lowerBound - upperBound + 1)) + lowerBound + 1;
 }
 
-char* generateGrade(nGuesses) {
+char generateGrade(int nGuesses) {
     int counter = 0;
     int range = ORIGINAL_UPPER_BOUND - ORIGINAL_LOWER_BOUND;
 
@@ -71,20 +90,17 @@ char* generateGrade(nGuesses) {
         counter ++;
     }
 
-    if (nGuesses < counter) {
-        return "A+";
+    int deviation = nGuesses - counter;
+
+    if (deviation <= 3) {
+        return 'A';
+    } else if (deviation <= 7) {
+        return 'B';
+    } else if (deviation <= 12) {
+        return 'C';
+    } else if (deviation <= 20) {
+        return 'D';
     }
 
-    switch (nGuesses - counter) {
-        case 0 ... 3:
-            return "A";
-        case 4 ... 7:
-            return "B";
-        case 8 ... 12:
-            return "C";
-        case 13 ... 20:
-            return "D";
-        default:
-            return "F";
-    }
+    return 'F';
 }

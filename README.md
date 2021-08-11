@@ -12,4 +12,4 @@ This is a mini project in C for me to familiarise myself with the C programming 
 
 ## Limitations
 
-- Checks are unimplemented
+- User inputs are unchecked
