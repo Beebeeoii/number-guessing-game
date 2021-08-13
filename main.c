@@ -3,6 +3,7 @@
 #include <time.h>
 
 void initialiseGameEngine();
+void endGame(int *, int *, time_t *, time_t *);
 int generateRandomInRange(int, int);
 int isUpperBoundValid(int, int);
 int isGuessValid(int, int, int);
@@ -16,9 +17,14 @@ int upperBound;
 int main() {
     initialiseGameEngine();
 
-    int nGuess = 1;
+    int nGuess = 0;
     int answer = generateRandomInRange(lowerBound, upperBound);
     int userInput;
+
+    time_t start, end;
+    float timeTaken;
+
+    time(&start);
 
     do {
         printf("Please input an integer between %d - %d\n\n", lowerBound, upperBound);
@@ -32,6 +38,7 @@ int main() {
         nGuess ++;
 
         if (userInput == answer) {
+            time(&end);
             printf("Wow sir you are how good !\n\n");
             break;
         }
@@ -45,10 +52,7 @@ int main() {
         printf("Hmm just a lil short from the actual answer!\n\n");
     } while(userInput != answer);
 
-    printf("----- Game Review -----\n");
-    printf("Answer: %d\n", answer);
-    printf("No. guesses: %d\n", nGuess);
-    printf("Grade: %c\n", generateGrade(nGuess));
+    endGame(&answer, &nGuess, &start, &end);
 
     return 0;
 }
@@ -66,6 +70,15 @@ void initialiseGameEngine() {
 
         ORIGINAL_UPPER_BOUND = upperBound;
     } while (!isUpperBoundValid(lowerBound, upperBound));
+}
+
+// Just using pointers for learning purposes
+void endGame(int *answer_p, int *nGuess_p, time_t *start_p, time_t *end_p) {
+    printf("----- Game Review -----\n");
+    printf("Answer: %d (%p)\n", *answer_p, answer_p);
+    printf("No. guesses: %d (%p)\n", *nGuess_p, nGuess_p);
+    printf("Time taken: %ds (start - %p, end - %p)\n", (int) difftime(*end_p, *start_p), start_p, end_p);
+    printf("Grade: %c (%p)\n", generateGrade(*nGuess_p), nGuess_p);
 }
 
 int isUpperBoundValid(int lowerBound, int upperBound) {
