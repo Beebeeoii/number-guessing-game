@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#define HISTORY_SIZE 100
 
 void initialiseGameEngine();
-void endGame(int *, int *, time_t *, time_t *);
+void endGame(int, int, int *, time_t, time_t);
 int generateRandomInRange(int, int);
 int isUpperBoundValid(int, int);
 int isGuessValid(int, int, int);
@@ -20,6 +21,7 @@ int main() {
     int nGuess = 0;
     int answer = generateRandomInRange(lowerBound, upperBound);
     int userInput;
+    int history[HISTORY_SIZE];
 
     time_t start, end;
     float timeTaken;
@@ -27,6 +29,11 @@ int main() {
     time(&start);
 
     do {
+        if (nGuess == HISTORY_SIZE) {
+            time(&end);
+            printf("Wow sir you are very determined ! But unfortunately you have spent too much time on this and we should move on with life\n\n");
+            break;
+        }
         printf("Please input an integer between %d - %d\n\n", lowerBound, upperBound);
         scanf("%d", &userInput);
 
@@ -35,10 +42,12 @@ int main() {
             scanf("%d", &userInput);
         }
         
+        history[nGuess] = userInput;
         nGuess ++;
 
         if (userInput == answer) {
             time(&end);
+            history[nGuess] = -1;
             printf("Wow sir you are how good !\n\n");
             break;
         }
@@ -52,7 +61,7 @@ int main() {
         printf("Hmm just a lil short from the actual answer!\n\n");
     } while(userInput != answer);
 
-    endGame(&answer, &nGuess, &start, &end);
+    endGame(answer, nGuess, history, start, end);
 
     return 0;
 }
@@ -72,13 +81,22 @@ void initialiseGameEngine() {
     } while (!isUpperBoundValid(lowerBound, upperBound));
 }
 
-// Just using pointers for learning purposes
-void endGame(int *answer_p, int *nGuess_p, time_t *start_p, time_t *end_p) {
+void endGame(int answer, int nGuess, int *history, time_t start, time_t end) {
     printf("----- Game Review -----\n");
-    printf("Answer: %d (%p)\n", *answer_p, answer_p);
-    printf("No. guesses: %d (%p)\n", *nGuess_p, nGuess_p);
-    printf("Time taken: %ds (start - %p, end - %p)\n", (int) difftime(*end_p, *start_p), start_p, end_p);
-    printf("Grade: %c (%p)\n", generateGrade(*nGuess_p), nGuess_p);
+    printf("Answer: %d\n", answer);
+    printf("No. guesses: %d\n", nGuess);
+    printf("Your guesses:");
+    for (int i = 0; i < HISTORY_SIZE; i++) {
+        if (history[i] == -1) {
+            printf("\n");
+            break;
+        }
+
+        printf(" %d", history[i]);
+    }
+
+    printf("Time taken: %ds\n", (int) difftime(end, start));
+    printf("Grade: %c\n", generateGrade(nGuess));
 }
 
 int isUpperBoundValid(int lowerBound, int upperBound) {
@@ -94,7 +112,7 @@ int generateRandomInRange(int lowerBound, int upperBound) {
     return (rand() % (lowerBound - upperBound + 1)) + lowerBound + 1;
 }
 
-char generateGrade(int nGuesses) {
+char generateGrade(int nGuess) {
     int counter = 0;
     int range = ORIGINAL_UPPER_BOUND - ORIGINAL_LOWER_BOUND;
 
@@ -103,7 +121,7 @@ char generateGrade(int nGuesses) {
         counter ++;
     }
 
-    int deviation = nGuesses - counter;
+    int deviation = nGuess - counter;
 
     if (deviation <= 3) {
         return 'A';
